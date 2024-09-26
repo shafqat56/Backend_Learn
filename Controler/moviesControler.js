@@ -299,9 +299,9 @@ exports.getmovieStats = async (req, res) => {
       {
         $sort: { minPrice: 1 },
       },
-      {
-        $match: { maxPrice: { $gte: 15 } },
-      },
+      // {
+      //   $match: { maxPrice: { $gte: 15 } },
+      // },
     ]);
     res.status(200).json({
       status: "success",

@@ -99,6 +99,13 @@ movieschema.post(/^find/, function (docs, next) {
   });
   next();
 });
+movieschema.pre("aggregate", function (next) {
+  console.log(
+    this.pipeline().unshift({ $match: { releaseDate: { $lte: new Date() } } })
+  );
+
+  next();
+});
 const Movie = mongoose.model("Movie", movieschema);
 
 module.exports = Movie;
