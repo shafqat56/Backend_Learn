@@ -31,3 +31,5 @@ coverage/
 # Miscellaneous files
 *.tmp
 *.bak
+# Ignore environment files
+.env
