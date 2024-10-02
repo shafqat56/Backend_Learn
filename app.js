@@ -35,5 +35,27 @@ app.use((req, res, next) => {
 // app.delete("/api/v1/movies/:id", deleteMovie);
 
 app.use("/api/v1/movies", moviesRouter);
+app.all("*", (req, res, next) => {
+  // res.status(404).json({
+  //   status: "fail",
+  //   message: `The requested URL ${req.originalUrl} cannot be found on the Server!`,
+  // });
+  const err = new Error(
+    `The requested URL ${req.originalUrl} cannot be found on the Server!`
+  );
+  err.status = "fail";
+  err.statusCode = 404;
+  next(err);
+});
+// Global Error Handler
+
+app.use((error, req, res, next) => {
+  error.statusCode = error.statusCode || 500;
+  error.status = error.status || "Error";
+  res.status(error.statusCode).json({
+    status: error.statusCode,
+    message: error.message,
+  });
+});
 
 module.exports = app;
