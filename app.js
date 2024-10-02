@@ -1,6 +1,8 @@
 const express = require("express");
 const morgan = require("morgan");
 const moviesRouter = require("./Routes/moviesRouter");
+const customError = require("./Utils/customError");
+const globalHandler = require("./Controler/errorControler");
 
 let app = express();
 
@@ -40,22 +42,19 @@ app.all("*", (req, res, next) => {
   //   status: "fail",
   //   message: `The requested URL ${req.originalUrl} cannot be found on the Server!`,
   // });
-  const err = new Error(
-    `The requested URL ${req.originalUrl} cannot be found on the Server!`
+  // const err = new Error(
+  //   `The requested URL ${req.originalUrl} cannot be found on the Server!`
+  // );
+  // err.status = "fail";
+  // err.statusCode = 404;
+  const err = new customError(
+    `The requested URL ${req.originalUrl} cannot be found on the Server!`,
+    404
   );
-  err.status = "fail";
-  err.statusCode = 404;
   next(err);
 });
 // Global Error Handler
 
-app.use((error, req, res, next) => {
-  error.statusCode = error.statusCode || 500;
-  error.status = error.status || "Error";
-  res.status(error.statusCode).json({
-    status: error.statusCode,
-    message: error.message,
-  });
-});
+app.use(globalHandler);
 
 module.exports = app;
