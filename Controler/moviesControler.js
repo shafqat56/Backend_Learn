@@ -2,6 +2,7 @@
 const Movie = require("./../Modle/moviesModle");
 // const Movie = require("./../Modle/moviesModle");
 const APIFeatures = require("./../Utils/APIFeatures");
+const asyncerrorHandler = require("./../Utils/asyncerrorhandler");
 // let movies = JSON.parse(fs.readFileSync("./data/movies.json"));
 
 // exports.Checkid = (req, res, next, value) => {
@@ -31,7 +32,7 @@ exports.gethighestRated = (req, res, next) => {
   next();
 };
 
-exports.getAllMovies = async (req, res) => {
+exports.getAllMovies = asyncerrorHandler(async (req, res, next) => {
   //Using Movies.json as a File
 
   // res.status(200).json({
@@ -44,88 +45,81 @@ exports.getAllMovies = async (req, res) => {
   // });
 
   // Using MongoDB as a Database
-  try {
-    const features = new APIFeatures(Movie.find(), req.query)
-      .Filter()
-      .sort()
-      .limitFields()
-      .paginate();
-    let movies = await features.query;
-    // console.log(req.query);
-    //exclude query Strings Logic
+  const features = new APIFeatures(Movie.find(), req.query)
+    .Filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  let movies = await features.query;
+  // console.log(req.query);
+  //exclude query Strings Logic
 
-    // const excludequery = ["sort", "page", "limit", "fields"];
-    // const queryObj = { ...req.query };
-    // excludequery.forEach((el) => {
-    //   delete queryObj[el];
-    // });
-    // console.log(queryObj);
+  // const excludequery = ["sort", "page", "limit", "fields"];
+  // const queryObj = { ...req.query };
+  // excludequery.forEach((el) => {
+  //   delete queryObj[el];
+  // });
+  // console.log(queryObj);
 
-    // // Advance Filtering like >= <=
-    // // Movie.find({duration:{$gte:90},ratings:{$gte:7},price{$lte:12}}) Filter look like this
-    // let querystr = JSON.stringify(queryObj);
-    // querystr = querystr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+  // // Advance Filtering like >= <=
+  // // Movie.find({duration:{$gte:90},ratings:{$gte:7},price{$lte:12}}) Filter look like this
+  // let querystr = JSON.stringify(queryObj);
+  // querystr = querystr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    // const filteredqueryObj = JSON.parse(querystr);
-    // // console.log(queryObj);
+  // const filteredqueryObj = JSON.parse(querystr);
+  // // console.log(queryObj);
 
-    // let query = Movie.find(filteredqueryObj);
-    // // Sorting Logic
-    // if (req.query.sort) {
-    //   console.log(req.query.sort);
+  // let query = Movie.find(filteredqueryObj);
+  // // Sorting Logic
+  // if (req.query.sort) {
+  //   console.log(req.query.sort);
 
-    //   const sortBy = req.query.sort.split(",").join(" ");
-    //   console.log(sortBy);
+  //   const sortBy = req.query.sort.split(",").join(" ");
+  //   console.log(sortBy);
 
-    //   query = query.sort(sortBy);
-    // } else {
-    //   query.sort("-createdAt");
-    // }
+  //   query = query.sort(sortBy);
+  // } else {
+  //   query.sort("-createdAt");
+  // }
 
-    // Show only selective Fields
+  // Show only selective Fields
 
-    // if (req.query.fields) {
-    //   const fields = req.query.fields.split(",").join(" ");
-    //   query = query.select(fields);
-    // } else {
-    //   query = query.select("-__v");
-    // }
+  // if (req.query.fields) {
+  //   const fields = req.query.fields.split(",").join(" ");
+  //   query = query.select(fields);
+  // } else {
+  //   query = query.select("-__v");
+  // }
 
-    // Pagination
+  // Pagination
 
-    // const page = req.query.page * 1 || 1;
-    // const limit = req.query.limit * 1 || 2;
-    // const skip = (page - 1) * limit;
-    // query = query.skip(skip).limit(limit);
-    // if (req.query.page) {
-    //   const moviesCount = await Movie.countDocuments();
-    //   if (skip >= moviesCount) {
-    //     throw new Error("Requested page cannot be found!");
-    //   }
-    // }
-    // const movies = await query;
-    // const movies = await Movie.find()
-    //   .where("duration")
-    //   .gte(req.query.duration?.gte)
-    //   .where("ratings")
-    //   .gte(req.query.ratings?.gte)
-    //   .where("price")
-    //   .lte(req.query.price?.lte);
-    res.status(200).json({
-      status: "success",
-      count: movies.length,
-      data: {
-        movies,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err.message,
-    });
-  }
-};
-exports.getMovie = async (req, res) => {
+  // const page = req.query.page * 1 || 1;
+  // const limit = req.query.limit * 1 || 2;
+  // const skip = (page - 1) * limit;
+  // query = query.skip(skip).limit(limit);
+  // if (req.query.page) {
+  //   const moviesCount = await Movie.countDocuments();
+  //   if (skip >= moviesCount) {
+  //     throw new Error("Requested page cannot be found!");
+  //   }
+  // }
+  // const movies = await query;
+  // const movies = await Movie.find()
+  //   .where("duration")
+  //   .gte(req.query.duration?.gte)
+  //   .where("ratings")
+  //   .gte(req.query.ratings?.gte)
+  //   .where("price")
+  //   .lte(req.query.price?.lte);
+  res.status(200).json({
+    status: "success",
+    count: movies.length,
+    data: {
+      movies,
+    },
+  });
+});
+exports.getMovie = asyncerrorHandler(async (req, res, next) => {
   //Using Movies.json as a File
   // const id = req.params.id * 1;
   // let movie = movies.find((el) => el.id === id);
@@ -145,28 +139,21 @@ exports.getMovie = async (req, res) => {
   // Using MongoDB as a Database
   // const movie = await Movie.find({ _id: req.params.id });
 
-  try {
-    const movie = await Movie.findById(req.params.id);
-    if (movie === null) {
-      return res.status(404).json({
-        status: "fail",
-        message: `No Movie with ID: ${req.params.id} is Present in DB`,
-      });
-    }
-    res.status(200).json({
-      status: "success",
-      data: {
-        movie,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
+  const movie = await Movie.findById(req.params.id);
+  if (movie === null) {
+    return res.status(404).json({
       status: "fail",
-      message: err.message,
+      message: `No Movie with ID: ${req.params.id} is Present in DB`,
     });
   }
-};
-exports.createMovie = async (req, res) => {
+  res.status(200).json({
+    status: "success",
+    data: {
+      movie,
+    },
+  });
+});
+exports.createMovie = asyncerrorHandler(async (req, res, next) => {
   //Using Movies.json as a File
 
   // console.log(req.body);
@@ -184,23 +171,25 @@ exports.createMovie = async (req, res) => {
   // });
 
   // Using MongoDB as a Database
-  try {
-    const movie = await Movie.create(req.body);
+  // try {
+  const movie = await Movie.create(req.body);
 
-    res.status(201).json({
-      status: "success",
-      data: {
-        movie,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err.message,
-    });
-  }
-};
-exports.updateMovie = async (req, res) => {
+  res.status(201).json({
+    status: "success",
+    data: {
+      movie,
+    },
+  });
+  // No Need Because of asyncerrorHandler Function
+
+  // } catch (err) {
+  //   res.status(400).json({
+  //     status: "fail",
+  //     message: err.message,
+  //   });
+  // }
+});
+exports.updateMovie = asyncerrorHandler(async (req, res, next) => {
   //Using Movies.json as a File
   // const id = req.params.id * 1;
   // let movietoUpdate = movies.find((el) => el.id === id);
@@ -223,29 +212,18 @@ exports.updateMovie = async (req, res) => {
   // });
 
   // Using MongoDB as a Database
-  try {
-    const updatedMovie = await Movie.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-    res.status(200).json({
-      status: "success",
-      data: {
-        updatedMovie,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err.message,
-    });
-  }
-};
-exports.deleteMovie = async (req, res) => {
+  const updatedMovie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  res.status(200).json({
+    status: "success",
+    data: {
+      updatedMovie,
+    },
+  });
+});
+exports.deleteMovie = asyncerrorHandler(async (req, res, next) => {
   //Using Movies.json as a File
   // const id = req.params.id * 1;
   // let movietoDelete = movies.find((el) => el.id === id);
@@ -266,89 +244,68 @@ exports.deleteMovie = async (req, res) => {
   //   });
   // });
   // Using MongoDB as a Database
-  try {
-    await Movie.findByIdAndDelete(req.params.id);
-    res.status(204).json({
-      status: "success",
-      data: null,
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err.message,
-    });
-  }
-};
-exports.getmovieStats = async (req, res) => {
-  try {
-    const stats = await Movie.aggregate([
-      {
-        $match: { ratings: { $gte: 4.5 } },
+  await Movie.findByIdAndDelete(req.params.id);
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
+});
+exports.getmovieStats = asyncerrorHandler(async (req, res, next) => {
+  const stats = await Movie.aggregate([
+    {
+      $match: { ratings: { $gte: 4.5 } },
+    },
+    {
+      $group: {
+        _id: "$releaseYear",
+        avgRating: { $avg: "$ratings" },
+        avgPrice: { $avg: "$price" },
+        minPrice: { $min: "$price" },
+        maxPrice: { $max: "$price" },
+        totalPrice: { $sum: "$price" },
+        movieCount: { $sum: 1 },
       },
-      {
-        $group: {
-          _id: "$releaseYear",
-          avgRating: { $avg: "$ratings" },
-          avgPrice: { $avg: "$price" },
-          minPrice: { $min: "$price" },
-          maxPrice: { $max: "$price" },
-          totalPrice: { $sum: "$price" },
-          movieCount: { $sum: 1 },
-        },
+    },
+    {
+      $sort: { minPrice: 1 },
+    },
+    // {
+    //   $match: { maxPrice: { $gte: 15 } },
+    // },
+  ]);
+  res.status(200).json({
+    status: "success",
+    count: stats.length,
+    data: stats,
+  });
+});
+exports.getmovieByGenre = asyncerrorHandler(async (req, res, next) => {
+  const genre = req.params.genre;
+  const movies = await Movie.aggregate([
+    {
+      $unwind: "$genres",
+    },
+    {
+      $group: {
+        _id: "$genres",
+        moviesCount: { $sum: 1 },
+        movies: { $push: "$name" },
       },
-      {
-        $sort: { minPrice: 1 },
-      },
-      // {
-      //   $match: { maxPrice: { $gte: 15 } },
-      // },
-    ]);
-    res.status(200).json({
-      status: "success",
-      count: stats.length,
-      data: stats,
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err.message,
-    });
-  }
-};
-exports.getmovieByGenre = async (req, res) => {
-  try {
-    const genre = req.params.genre;
-    const movies = await Movie.aggregate([
-      {
-        $unwind: "$genres",
-      },
-      {
-        $group: {
-          _id: "$genres",
-          moviesCount: { $sum: 1 },
-          movies: { $push: "$name" },
-        },
-      },
-      {
-        $addFields: { genre: "$_id" },
-      },
-      {
-        $project: { _id: 0 },
-      },
-      { $sort: { moviesCount: -1 } },
-      {
-        $match: { genre: genre },
-      },
-    ]);
-    res.status(200).json({
-      status: "success",
-      count: movies.length,
-      data: movies,
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err.message,
-    });
-  }
-};
+    },
+    {
+      $addFields: { genre: "$_id" },
+    },
+    {
+      $project: { _id: 0 },
+    },
+    { $sort: { moviesCount: -1 } },
+    {
+      $match: { genre: genre },
+    },
+  ]);
+  res.status(200).json({
+    status: "success",
+    count: movies.length,
+    data: movies,
+  });
+});
