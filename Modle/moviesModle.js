@@ -5,6 +5,7 @@ const movieschema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "Name is a required field"],
+      minlength: [5, "Length must be equal or greater then 5"],
       unique: true,
       trim: true,
     },

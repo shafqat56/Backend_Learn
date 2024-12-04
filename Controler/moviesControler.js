@@ -3,6 +3,7 @@ const Movie = require("./../Modle/moviesModle");
 // const Movie = require("./../Modle/moviesModle");
 const APIFeatures = require("./../Utils/APIFeatures");
 const asyncerrorHandler = require("./../Utils/asyncerrorhandler");
+const customError = require("./../Utils/customError");
 // let movies = JSON.parse(fs.readFileSync("./data/movies.json"));
 
 // exports.Checkid = (req, res, next, value) => {
@@ -140,11 +141,15 @@ exports.getMovie = asyncerrorHandler(async (req, res, next) => {
   // const movie = await Movie.find({ _id: req.params.id });
 
   const movie = await Movie.findById(req.params.id);
-  if (movie === null) {
-    return res.status(404).json({
-      status: "fail",
-      message: `No Movie with ID: ${req.params.id} is Present in DB`,
-    });
+  // if (movie === null) {
+  //   return res.status(404).json({
+  //     status: "fail",
+  //     message: `No Movie with ID: ${req.params.id} is Present in DB`,
+  //   });
+  // }
+  if (!movie) {
+    const error = new customError("Movie with Requested ID Not Found", 404);
+    return next(error);
   }
   res.status(200).json({
     status: "success",
@@ -216,6 +221,10 @@ exports.updateMovie = asyncerrorHandler(async (req, res, next) => {
     new: true,
     runValidators: true,
   });
+  if (!updatedMovie) {
+    const error = new customError("Movie with Requested ID Not Found", 404);
+    return next(error);
+  }
   res.status(200).json({
     status: "success",
     data: {
@@ -244,7 +253,11 @@ exports.deleteMovie = asyncerrorHandler(async (req, res, next) => {
   //   });
   // });
   // Using MongoDB as a Database
-  await Movie.findByIdAndDelete(req.params.id);
+  const deletedMovie = await Movie.findByIdAndDelete(req.params.id);
+  if (!deletedMovie) {
+    const error = new customError("Movie with Requested ID Not Found", 404);
+    return next(error);
+  }
   res.status(204).json({
     status: "success",
     data: null,

@@ -4,14 +4,12 @@ dotenv.config({ path: "./config.env" });
 const app = require("./app");
 const port = process.env.PORT;
 
-mongoose
-  .connect(process.env.CONN_STR)
-  .then(() => {
-    console.log("DB Connected Successfully");
-  })
-  .catch((error) => {
-    console.error("Error connecting to the database:", error);
-  });
+mongoose.connect(process.env.CONN_STR).then(() => {
+  console.log("DB Connected Successfully");
+});
+// .catch((error) => {
+//   console.error("Error connecting to the database:", error);
+// });
 
 // const testMovie = new Movie({
 //   name: "Krish ",
@@ -28,6 +26,15 @@ mongoose
 //     console.error("Error inserting document:", err);
 //   });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server has started on port ${port}`);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.log(err.name, err.message);
+  console.log("Unhandled Rejection occured shutting down...");
+
+  server.close(() => {
+    process.exit(1);
+  });
 });
