@@ -151,6 +151,7 @@ exports.getMovie = asyncerrorHandler(async (req, res, next) => {
     const error = new customError("Movie with Requested ID Not Found", 404);
     return next(error);
   }
+  
   res.status(200).json({
     status: "success",
     data: {
